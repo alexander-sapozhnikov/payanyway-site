@@ -3,17 +3,26 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/alexander-sapozhnikov/payanyway-site/internal/setting"
+	"github.com/alexander-sapozhnikov/shoemaker"
 	"github.com/alexander-sapozhnikov/shoemaker/closer"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	closer.Bind(cancel)
+
+	app, err := shoemaker.Init(ctx)
+	if err != nil {
+		logrus.Fatalf("shoemaker.Init: %v", err)
+	}
+
 	config, err := setting.NewConfig(context.Background())
 	if err != nil {
-		log.Fatalf("failed to create config: %v", err)
+		logrus.Fatalf("failed to create config: %v", err)
 	}
 	serverMux := http.NewServeMux()
 	serverMux.Handle("/", http.FileServer(http.Dir(config.File)))
@@ -23,8 +32,16 @@ func main() {
 	}
 	closer.Bind(func() { _ = dataServer.Close() })
 
-	err = dataServer.ListenAndServe()
+	go func() {
+		err := dataServer.ListenAndServe()
+		if err != nil {
+			logrus.Warnf("file server: %w", err)
+		}
+		closer.Close()
+	}()
+
+	app.Run(ctx)
 	if err != nil {
-		log.Fatal(fmt.Errorf("file server: %w", err))
+		logrus.Fatal(fmt.Errorf("app: %w", err))
 	}
 }
