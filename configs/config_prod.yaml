@@ -1,0 +1,3 @@
+app_name: "payanyway-site"
+server_port: ":80"
+file: "site"

@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  payanyway-site:
+    image: "sapozhnikov.com:5000/payanyway-site:${VERSION}"
+    command: "./app"
+    networks:
+      - net_app
+    # swarm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5300/health-check/liveness"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+      placement:
+        constraints:
+          - "node.labels.TAG==prod_3"
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.payanyway-site.rule=Host(`book-consultant.sapog-host.ru`)"
+        - "traefik.http.routers.payanyway-site.entrypoints=websecure"
+        - "traefik.http.routers.payanyway-site.tls.certresolver=letsencryptresolver"
+        - "traefik.http.services.payanyway-site.loadbalancer.server.port=80"
+        - "traefik.http.routers.payanyway-site.service=payanyway-site"
+
+
+
+networks:
+  net_app:
+    external: true
+
+
+
