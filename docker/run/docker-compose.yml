@@ -2,19 +2,24 @@ version: '3.8'
 
 services:
   payanyway-site:
-    image: "sapozhnikov.com:5000/payanyway-site:${VERSION}"
+    image: "registry.sapog-host.ru/payanyway-site${VERSION}"
     command: "./app"
     networks:
-      - net_app
-    # swarm
+      - net_caddy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5300/health-check/liveness"]
-      interval: 5s
+      test: ["CMD", "/bin/curl", "-f", "http://localhost:5300/health-check/liveness"]
+      interval: 10s
       timeout: 10s
       retries: 5
     deploy:
       mode: replicated
       replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 64M
+        reservations:
+          memory: 16M
       update_config:
         parallelism: 1
         delay: 10s
@@ -24,16 +29,11 @@ services:
         delay: 10s
       placement:
         constraints:
-          - "node.labels.TAG==prod_3"
+          - node.role == worker
       labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.payanyway-site.rule=Host(`book-consultant.sapog-host.ru`)"
-        - "traefik.http.routers.payanyway-site.entrypoints=websecure"
-        - "traefik.http.routers.payanyway-site.tls.certresolver=letsencryptresolver"
-        - "traefik.http.services.payanyway-site.loadbalancer.server.port=80"
-        - "traefik.http.routers.payanyway-site.service=payanyway-site"
-
+        caddy: your-book-consultant.sapog-host.ru
+        caddy.reverse_proxy: "{{upstreams 80}}"
 
 networks:
-  net_app:
+  net_caddy:
     external: true

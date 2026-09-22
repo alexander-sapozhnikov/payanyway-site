@@ -1,0 +1,4 @@
+# yaml-language-server: $schema=none
+app_name: payanyway-site
+rollback:
+  - payanyway-site_payanyway-site
