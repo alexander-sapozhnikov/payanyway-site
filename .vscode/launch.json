@@ -5,6 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Camper Site",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/cmd/camper/main.go",
+            "cwd": "${workspaceFolder}",
+            "showLog": false,
+            "args": [ "--dev", "--port_app=8001"],
+            "env": {
+            }
+        },
+        {
             "name": "App",
             "type": "go",
             "request": "launch",
@@ -14,7 +26,7 @@
             "showLog": false,
             "args": [ "--dev", "--port_app=8000"],
             "env": {
-            },
+            }
         },
         {
             "name": "Cron calculate",
@@ -26,7 +38,7 @@
             "showLog": false,
             "args": [ "--dev", "--port_app=7000"],
             "env": {
-            },
+            }
         },
         {
             "name": "Cron partition",
@@ -38,7 +50,7 @@
             "showLog": false,
             "args": [ "--dev", "--port_app=7000"],
             "env": {
-            },
-        },
+            }
+        }
     ]
 }

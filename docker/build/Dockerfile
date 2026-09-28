@@ -7,7 +7,9 @@ COPY --from=ghcr.io/antyung88/scratch-curl:stable /bin /bin
 COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 COPY configs/config_prod.yaml ./configs/config.yaml
+COPY configs/config_camper_prod.yaml ./configs/config_camper_prod.yaml
 COPY site ./site
+COPY camper ./camper
 COPY build/ .
 
 # server port

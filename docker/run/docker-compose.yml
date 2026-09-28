@@ -34,6 +34,39 @@ services:
         caddy: your-book-consultant.sapog-host.ru
         caddy.reverse_proxy: "{{upstreams 80}}"
 
+  camper-site:
+    image: "registry.sapog-host.ru/payanyway-site${VERSION}"
+    command: "./camper"
+    networks:
+      - net_caddy
+    healthcheck:
+      test: ["CMD", "/bin/curl", "-f", "http://localhost:5300/health-check/liveness"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 64M
+        reservations:
+          memory: 16M
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+      placement:
+        constraints:
+          - node.role == worker
+      labels:
+        caddy: camper.sapog-host.ru
+        caddy.reverse_proxy: "{{upstreams 80}}"
+
 networks:
   net_caddy:
     external: true
